@@ -11,26 +11,26 @@ export async function callGeminiAPI(apiKey, message, systemPrompt = '') {
           system_instruction: {
             parts: [
               {
-                text: systemPrompt || 'Você é um assistente útil e amigável.',
-              },
-            ],
+                text: systemPrompt || 'Você é um assistente útil e amigável.'
+              }
+            ]
           },
           contents: [
             {
               parts: [
                 {
-                  text: message,
-                },
-              ],
-            },
+                  text: message
+                }
+              ]
+            }
           ],
           generationConfig: {
             temperature: 0.7,
             topK: 40,
             topP: 0.95,
             maxOutputTokens: 2048,
-          },
-        }),
+          }
+        })
       }
     )
 
@@ -40,10 +40,10 @@ export async function callGeminiAPI(apiKey, message, systemPrompt = '') {
     }
 
     const data = await response.json()
-
+    
     if (data.candidates && data.candidates.length > 0) {
       const content = data.candidates[0].content
-n      if (content && content.parts && content.parts.length > 0) {
+      if (content && content.parts && content.parts.length > 0) {
         return content.parts[0].text
       }
     }
