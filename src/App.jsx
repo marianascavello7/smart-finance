@@ -67,12 +67,37 @@ function App() {
 function ApiKeyModal({ onSave, currentKey }) {
   const [key, setKey] = useState(currentKey)
   const [showKey, setShowKey] = useState(false)
+  const [error, setError] = useState('')
+
+  const validateApiKey = (apiKey) => {
+    const trimmedKey = apiKey.trim()
+    
+    if (!trimmedKey) {
+      return 'API Key não pode estar vazia'
+    }
+    
+    if (trimmedKey.length < 20) {
+      return 'API Key parece estar inválida (muito curta). Verifique se copiou corretamente.'
+    }
+    
+    if (!trimmedKey.includes('AIza')) {
+      return 'API Key do Google Gemini deve começar com "AIza". Verifique se está correta.'
+    }
+    
+    return ''
+  }
 
   const handleSubmit = (e) => {
     e.preventDefault()
-    if (key.trim()) {
-      onSave(key)
+    
+    const validationError = validateApiKey(key)
+    if (validationError) {
+      setError(validationError)
+      return
     }
+    
+    onSave(key.trim())
+    setError('')
   }
 
   return (
@@ -85,23 +110,43 @@ function ApiKeyModal({ onSave, currentKey }) {
         <p className="text-sm text-slate-400 mb-4">
           Obtenha sua chave gratuitamente em: <a href="https://ai.google.dev" target="_blank" rel="noopener noreferrer" className="text-primary hover:underline">ai.google.dev</a>
         </p>
+        
+        {/* Help text */}
+        <div className="bg-slate-700/50 border border-slate-600 rounded-lg p-3 mb-4">
+          <p className="text-xs text-slate-300">
+            💡 <strong>Dica:</strong> Sua chave é armazenada apenas no seu navegador e nunca é compartilhada.
+          </p>
+        </div>
+        
         <form onSubmit={handleSubmit}>
           <div className="relative mb-4">
             <input
               type={showKey ? 'text' : 'password'}
               value={key}
-              onChange={(e) => setKey(e.target.value)}
-              placeholder="Insira sua API Key"
+              onChange={(e) => {
+                setKey(e.target.value)
+                setError('')
+              }}
+              placeholder="Insira sua API Key (começa com AIza...)"
               className="w-full px-4 py-2 bg-slate-700 border border-slate-600 rounded-lg text-white placeholder-slate-400 focus:outline-none focus:border-primary"
+              autoComplete="off"
             />
             <button
               type="button"
               onClick={() => setShowKey(!showKey)}
               className="absolute right-3 top-2.5 text-slate-400 hover:text-slate-200"
+              title={showKey ? 'Ocultar chave' : 'Mostrar chave'}
             >
               {showKey ? '😨' : '👁️'}
             </button>
           </div>
+          
+          {error && (
+            <div className="mb-4 p-3 bg-red-600/20 border border-red-600 rounded-lg">
+              <p className="text-red-300 text-sm">{error}</p>
+            </div>
+          )}
+          
           <button
             type="submit"
             className="w-full bg-primary hover:bg-primary/90 text-white font-semibold py-2 rounded-lg transition"
